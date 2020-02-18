@@ -1,13 +1,5 @@
 import os, sys
-from lexer import BlitzLex, blitz_builtins
-
-out_level = 0
-
-def out(message, level = 0):
-    if level < out_level:
-        return
-    gravity = ['INFO', 'WARNING', 'ERROR'][level]
-    print(f"[BZ {gravity}]: {message}")
+from blzparser.helper import *
 
 def _find_closure(s, start, end):
     n = 0
