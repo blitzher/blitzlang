@@ -1,1 +1,1 @@
-# blitz-language
+# blitzlang
