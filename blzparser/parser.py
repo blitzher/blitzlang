@@ -1,5 +1,6 @@
 import os, sys
 from blzparser.helper import *
+from blzparser.lexer import BlitzLex
 
 def _find_closure(s, start, end):
     n = 0
@@ -31,16 +32,12 @@ class BlitzParse:
 
 
 
-
-
-
-
-
-
 def main():
 
     if len(sys.argv) < 2:
-        out("File not specified!", level = 2)
+        helper.out("File not specified!", level = 2)
+    
+
 
 if __name__ == '__main__':
     main()

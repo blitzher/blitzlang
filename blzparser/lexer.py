@@ -1,21 +1,26 @@
 import os, sys, re
 from blzparser.helper import helper
 
-blitz_builtins = ['func', 'var', 'run', 'operate', 'return']
+blitz_builtins = ['func', 'var', 'run', 'out', 'operate', 'return', 'if']
 allowed_expr = "^[a-zA-Z0-9_]+$"
 descriptors = "()[]{};\""
+operators = r"^[=\+\-\*\/]=?$"
 
 class BlitzLex:
-    def __init__(self, file):
-        pass
 
     @staticmethod
     def segment(file):
-        if type(file) != str:
-            helper._raise(TypeError("Must load a valid file!"))
+        """ converts a str, looking like a .bz program
+        to segments, following the blitz logic
 
-        file = file.replace("\n", "")
-        parts = []
+        returns a generator yielding these segments
+
+        BlitzLex.segment(str) -> <generator>
+        """
+        if type(file) != str:
+            helper._raise(TypeError("Must take a str as argument!"))
+
+        file = file.replace("\n", " ")
 
         index = 0
 
@@ -30,7 +35,7 @@ class BlitzLex:
 
             # if it is among the syntax, append it
             elif file[index] in descriptors:
-                parts.append(file[index])
+                yield file[index]
 
             # else it is a name of a sort,
             # thus figure out how long this goes on
@@ -39,27 +44,49 @@ class BlitzLex:
                 while re.match(allowed_expr, file[index:index+c]) and index+c <= len(file):
                     c += 1
                 c -= 1
-                parts.append(file[index:index+c])
+                yield file[index:index+c]
+            
+            # do the same for multichar operators
+            elif re.match(operators, file[index]):
+                while re.match(operators, file[index:index+c]) and index+c <= len(file):
+                    c+= 1
+                c -= 1
+                yield file[index:index+c]
             index += c
-        
-        
-        return parts
 
     @staticmethod
-    def tokenizer(tokens):
-        if type(tokens) not in (list, tuple):
+    def token_one(token):
+        if token in blitz_builtins:
+            return ('builtin', token)
+        elif token in descriptors:
+            return ('descriptor', token)
+        elif re.match("^[0-9.]+$", token):
+            return ('number', token)
+        elif re.match("^[a-zA-Z0-9_]+$", token):
+            return ('variable', token)
+        elif re.match(operators, token):
+            return ('operator', token)
+        else:
+            helper._raise(ValueError("Found unrecognizable token!"))
+
+    @staticmethod
+    def tokenizer(segments):
+        """converts segments to tokens """
+        if type(segments) not in (list, tuple):
             helper._raise(TypeError("Cannot tokenize non-list-like"))
 
-        determined = []
-        for c, token in enumerate(tokens):
-            if token in blitz_builtins:
-                determined.append(('builtin', token))
-            elif token in descriptors:
-                determined.append(('descriptor', token))
-            elif re.match("^[0-9.]+$", token):
-                determined.append(('number', token))
-            elif re.match("^[a-zA-Z0-9_]+$", token):
-                determined.append(('variable', token))
-            else:
-                helper._raise(ValueError("Found unrecognizable token!"))
-        return determined
+        for token in segments:
+            yield BlitzLex.token_one(token)
+            
+
+    @staticmethod
+    def work(file):
+        """combine the functionality of segment and tokenize in one"""
+        for segment in BlitzLex.segment(file):
+            yield BlitzLex.token_one(segment)
+
+def main():
+    pass
+
+if __name__ == '__main__':
+    main()
