@@ -1,5 +1,5 @@
 import os, sys, re
-from blzparser.helper import helper
+from blzparser.helper import helper as hlp
 
 blitz_builtins = ['func', 'var', 'run', 'out', 'operate', 'return', 'if']
 allowed_expr = "^[a-zA-Z0-9_]+$"
@@ -18,7 +18,7 @@ class BlitzLex:
         BlitzLex.segment(str) -> <generator>
         """
         if type(file) != str:
-            helper._raise(TypeError("Must take a str as argument!"))
+            hlp._raise(TypeError("Must take a str as argument!"))
 
         file = file.replace("\n", " ")
 
@@ -45,7 +45,7 @@ class BlitzLex:
                     c += 1
                 c -= 1
                 yield file[index:index+c]
-            
+
             # do the same for multichar operators
             elif re.match(operators, file[index]):
                 while re.match(operators, file[index:index+c]) and index+c <= len(file):
@@ -57,27 +57,27 @@ class BlitzLex:
     @staticmethod
     def token_one(token):
         if token in blitz_builtins:
-            return ('builtin', token)
+            return (hlp.BUILTIN, token)
         elif token in descriptors:
-            return ('descriptor', token)
+            return (hlp.DESCRIPTOR, token)
         elif re.match("^[0-9.]+$", token):
-            return ('number', token)
+            return (hlp.NUMBER, token)
         elif re.match("^[a-zA-Z0-9_]+$", token):
-            return ('variable', token)
+            return (hlp.VARIABLE, token)
         elif re.match(operators, token):
-            return ('operator', token)
+            return (hlp.OPERATOR, token)
         else:
-            helper._raise(ValueError("Found unrecognizable token!"))
+            hlp._raise(ValueError("Found unrecognizable token!"))
 
     @staticmethod
     def tokenizer(segments):
         """converts segments to tokens """
         if type(segments) not in (list, tuple):
-            helper._raise(TypeError("Cannot tokenize non-list-like"))
+            hlp._raise(TypeError("Cannot tokenize non-list-like"))
 
         for token in segments:
             yield BlitzLex.token_one(token)
-            
+
 
     @staticmethod
     def work(file):

@@ -19,16 +19,68 @@ def _find_next(s, seg):
             return c
     return False
 
+class Operation(object):
+    def __init__(self, *args, **kwargs):
+        pass
+
+    def evl(self):
+        return 0
+
+
+class PLUS(Operation):
+    @staticmethod
+    def evl(obj1, obj2):
+        return obj1 + obj2
+
+
+class MINUS(Operation):
+    @staticmethod
+    def evl(obj1, obj2):
+        return obj1 - obj2
+
+
+class MULT(Operation):
+    @staticmethod
+    def evl(obj1, obj2):
+        return obj1 * obj2
+
+
+class DIV(Operation):
+    @staticmethod
+    def evl(obj1, obj2):
+        return obj1 / obj2
+
+
+class ASSIGN(Operation):
+    def __init__(self, name, value):
+        self.name, self.value = name, value
+
+    def evl(self):
+        return self.value
+
+class Node(object):
+    def __init__(self, left, op, right):
+        self.left, self.op, self.right = left, op, right
+
+    def evl(self):
+        return self.op.evl(self.left, self.right)
+
+
 class BlitzParse:
-    INFO = []
-    WARNING = []
-    ERROR = []
 
     def __init__(self):
         pass
 
-    def parse(self, file):
-        pass
+    def parse(self, tokens):
+        flags = {
+        'setting-name'  :0,
+        'defining-func' :0,
+        'enclosement'   :0,
+        }
+
+        for typ, nam in tokens:
+            pass
+
 
 
 
@@ -36,7 +88,7 @@ def main():
 
     if len(sys.argv) < 2:
         helper.out("File not specified!", level = 2)
-    
+
 
 
 if __name__ == '__main__':
